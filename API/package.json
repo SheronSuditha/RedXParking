@@ -1,19 +1,15 @@
 {
-  "name": "api",
+  "name": "api-working",
   "version": "1.0.0",
-  "description": "a RestAPI for RedXParking ",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [
-    "node",
-    "restapi",
-    "api"
-  ],
-  "author": "Sheron Suditha",
-  "license": "MIT",
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mysql": "^2.17.1"
   }
 }
