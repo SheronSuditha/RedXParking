@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<meta http-equiv="refresh" content="120" />
+<html>
+<style>
+    #map {
+        height: 100%;
+    }
+
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+<body>
+    <div id="map"></div>
+</body>
+
+<script>
+
+    var spotsData = [];
+
+    function getData() {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                _controller(xmlHttp.responseText);
+
+            }
+        }
+        xmlHttp.open("GET", 'https://data.melbourne.vic.gov.au/resource/vh2v-4nfs.json', false);
+        xmlHttp.send(null);
+    }
+
+    function _controller(data) {
+        var datafromAPI = JSON.parse(data);
+        datafromAPI.forEach(element => {
+            if (element.status == 'Unoccupied') {
+                spotsData.push({ "lat": Number(element.lat), "lng": Number(element.lon) })
+                console.log(`ADDED ${element.bay_id}`)
+            }
+        });
+        console.log(spotsData);
+    }
+
+    function initMap() {
+        getData();
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 5,
+            center: { lat: -33.865143, lng: 151.209900 }
+        });
+
+        var markers = spotsData.map(function (location, i) {
+            return new google.maps.Marker({
+                position: location,
+                label: "A"
+            });
+        })
+
+        getPos(map);
+
+        var markerCluster = new MarkerClusterer(map, markers,
+            { imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m' });
+    }
+
+    function getPos(map) {
+        locationWin = new google.maps.InfoWindow;
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                locationWin.setPosition(pos);
+                console.log(pos)
+                locationWin.setContent(`Your Location!<h><br>LAT: ${pos.lat}<br>LN: ${pos.lng}`);
+                locationWin.open(map);
+            }, function() {
+                handleLocationError(false, locationWin, map.getCenter());
+            })
+        } else {
+            handleLocationError(false, locationWin, map.getCenter());
+        }
+    }
+
+    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+            'Error: The Geolocation service failed.' :
+            'Error: Your browser doesn\'t support geolocation.');
+        infoWindow.open(map);
+    }
+
+</script>
+<script>
+        document.onkeydown = function (e) {
+            if (e.ctrlKey &&
+                (e.keyCode === 67 ||
+                    e.keyCode === 86 ||
+                    e.keyCode === 85 ||
+                    e.keyCode === 117)) {
+                return false;
+            } else {
+                return true;
+            }
+        };
+        $(document).keypress("u", function (e) {
+            if (e.ctrlKey) {
+                return false;
+            } else {
+                return true;
+            }
+        });
+</script>
+<script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">
+</script>
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACZ6to_1TcoVi2rvpZ_QAsLzMbEi2RkrI&callback=initMap">
+    </script>
+
+</html>
